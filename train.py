@@ -85,3 +85,14 @@ for _ in range(15):
     context = context[1:] + [next_idx]
 
 print(" ".join(result))
+
+# Save the trained model
+torch.save({
+    'model_state': model.state_dict(),
+    'word_to_idx': word_to_idx,
+    'idx_to_word': idx_to_word,
+    'vocab_size': vocab_size,
+    'context_size': context_size
+}, 'model.pth')
+
+print("\n ✔ Model saved to model.pth!")
