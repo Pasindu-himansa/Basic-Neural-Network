@@ -79,7 +79,7 @@ print("\n--- AI Generated Text ---")
 current_word = "the"
 result = [current_word]
 
-for _ in range(10):
+for _ in range(15):
     input_tensor = torch.tensor([word_to_idx[current_word]])
     output = model(input_tensor)
     probs = torch.softmax(output, dim=1)
