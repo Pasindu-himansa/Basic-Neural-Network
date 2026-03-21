@@ -1,19 +1,9 @@
 import torch
 import torch.nn as nn
 
-# Our training text - you can change this to anything!
-text = """
-the cat sat on the mat
-the dog sat on the log
-the cat ate the rat
-the dog ate the hog
-the rat ran fast
-the hog ran slow
-the cat ran fast
-the dog ran slow
-the rat sat on the mat
-the hog sat on the log
-"""
+from data import training_text
+text = training_text
+
 
 # Step 1 - Build vocabulary from our text
 words = text.split()
