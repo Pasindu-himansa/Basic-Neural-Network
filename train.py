@@ -53,7 +53,7 @@ class TinyAI(nn.Module):
 # Step 5 - Train the model
 vocab_size = len(vocab)
 model = TinyAI(vocab_size)
-optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 loss_fn = nn.CrossEntropyLoss()
 
 print("\nTraining...")
