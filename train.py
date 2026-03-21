@@ -57,7 +57,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
 loss_fn = nn.CrossEntropyLoss()
 
 print("\nTraining...")
-for epoch in range(500):
+for epoch in range(1000):
     total_loss = 0
     for i in range(len(data) - 1):
         input_word = torch.tensor([data[i]])
@@ -72,7 +72,7 @@ for epoch in range(500):
         total_loss += loss.item()
 
     if (epoch + 1) % 100 == 0:
-        print(f"Epoch {epoch+1}/500 - Loss: {total_loss:.4f}")
+        print(f"Epoch {epoch+1}/1000 - Loss: {total_loss:.4f}")
 
 # Step 6 - Generate text from our trained AI
 print("\n--- AI Generated Text ---")
