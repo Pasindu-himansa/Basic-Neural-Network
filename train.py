@@ -9,6 +9,10 @@ the cat ate the rat
 the dog ate the hog
 the rat ran fast
 the hog ran slow
+the cat ran fast
+the dog ran slow
+the rat sat on the mat
+the hog sat on the log
 """
 
 # Step 1 - Build vocabulary from our text
@@ -26,17 +30,25 @@ data = [word_to_idx[w] for w in words]
 
 # Step 4 - Build the Neural Network
 class TinyAI(nn.Module):
-    def __init__(self, vocab_size, embed_size=10, hidden_size=32):
+    def __init__(self, vocab_size, embed_size=16, hidden_size=64):
         super().__init__()
         self.embed = nn.Embedding(vocab_size, embed_size)
-        self.hidden = nn.Linear(embed_size, hidden_size)
-        self.output = nn.Linear(hidden_size, vocab_size)
+        self.hidden1 = nn.Linear(embed_size, hidden_size)   # Layer 2 - First Hidden
+        self.hidden2 = nn.Linear(hidden_size, hidden_size)  # Layer 3 - Second Hidden
+        self.hidden3 = nn.Linear(hidden_size, hidden_size)  # Layer 4 - Third Hidden
+        self.output = nn.Linear(hidden_size, vocab_size)    # Layer 5 - Output
         self.relu = nn.ReLU()
+        self.dropout = nn.Dropout(0.2)
 
     def forward(self, x):
-        x = self.embed(x)
-        x = self.relu(self.hidden(x))
-        return self.output(x)
+        x = self.embed(x)                    # Layer 1 - Embedding
+        x = self.relu(self.hidden1(x))       # Layer 2 - First Hidden
+        x = self.dropout(x)                  # Dropout
+        x = self.relu(self.hidden2(x))       # Layer 3 - Second Hidden
+        x = self.dropout(x)                  # Dropout
+        x = self.relu(self.hidden3(x))       # Layer 4 - Third Hidden
+        x = self.output(x)                   # Layer 5 - Output
+        return x
 
 # Step 5 - Train the model
 vocab_size = len(vocab)
