@@ -9,8 +9,8 @@ context_size = 3
 # Step 1 - Build vocabulary from our text
 words = text.split()
 vocab = sorted(set(words))
-print(f"Vocabulary: {vocab}")
-print(f"Vocab size: {len(vocab)}")
+print(f"Vocabulary: {vocab}", flush=True)
+print(f"Vocab size: {len(vocab)}", flush=True)
 
 # Step 2 - Convert words to numbers
 word_to_idx = {w: i for i, w in enumerate(vocab)}
@@ -52,7 +52,7 @@ model = TinyAI(vocab_size)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 loss_fn = nn.CrossEntropyLoss()
 
-print("\nTraining...")
+print("\nTraining...", flush=True)
 for epoch in range(1000):
     total_loss = 0
     for context, target in data:
@@ -68,10 +68,10 @@ for epoch in range(1000):
         total_loss += loss.item()
 
     if (epoch + 1) % 100 == 0:
-        print(f"Epoch {epoch+1}/1000 - Loss: {total_loss:.4f}")
+        print(f"Epoch {epoch+1}/1000 - Loss: {total_loss:.4f}", flush=True)
 
 # Step 6 - Generate text from our trained AI
-print("\n--- AI Generated Text ---")
+print("\n--- AI Generated Text ---", flush=True)
 context = [word_to_idx["the"], word_to_idx["cat"], word_to_idx["sat"]]
 result = ["the", "cat", "sat"]
 
@@ -84,7 +84,7 @@ for _ in range(15):
     result.append(next_word)
     context = context[1:] + [next_idx]
 
-print(" ".join(result))
+print(" ".join(result), flush=True)
 
 # Save the trained model
 torch.save({

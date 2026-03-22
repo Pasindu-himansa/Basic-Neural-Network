@@ -41,7 +41,9 @@ class TinyAI(nn.Module):
 
 # Load model on startup
 print("Loading model...")
-checkpoint = torch.load('model.pth')
+import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+checkpoint = torch.load(os.path.join(BASE_DIR, 'model.pth'))
 word_to_idx = checkpoint['word_to_idx']
 idx_to_word = checkpoint['idx_to_word']
 vocab_size = checkpoint['vocab_size']
@@ -152,11 +154,30 @@ def remove_sentence(req: SentenceRequest):
     return {"success": True, "message": "Sentence removed!"}
 
 # Retrain the model
+training_logs = []
+
 @app.post("/retrain")
 def retrain():
     import subprocess
-    subprocess.Popen(
-        ["python", "train.py"],
-        creationflags=subprocess.CREATE_NEW_CONSOLE
-    )
+    import threading
+
+    def run_training():
+        process = subprocess.Popen(
+            ["python","-u", "train.py"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            cwd=BASE_DIR
+        )
+        for line in process.stdout:
+            training_logs.append(line.strip())
+        training_logs.append("✅ Training complete!")
+
+    training_logs.clear()
+    thread = threading.Thread(target=run_training)
+    thread.start()
     return {"success": True, "message": "Retraining started!"}
+
+@app.get("/retrain/logs")
+def get_logs():
+    return {"logs": training_logs}

@@ -18,6 +18,8 @@ function App() {
   const [newSentence, setNewSentence] = useState("");
   const [dataMessage, setDataMessage] = useState("");
   const [retraining, setRetraining] = useState(false);
+  const [logs, setLogs] = useState([]);
+  const [logInterval, setLogInterval] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -50,13 +52,25 @@ function App() {
 
   const retrain = async () => {
     setRetraining(true);
-    setDataMessage("Retraining...");
+    setLogs([]);
+    setDataMessage("");
     await fetch("http://127.0.0.1:8000/retrain", { method: "POST" });
-    setTimeout(() => {
-      setRetraining(false);
-      setDataMessage("✅ Retrained successfully!");
-      setTimeout(() => setDataMessage(""), 3000);
-    }, 15000);
+
+    const interval = setInterval(async () => {
+      const res = await fetch("http://127.0.0.1:8000/retrain/logs");
+      const data = await res.json();
+      console.log("Logs:", data.logs);
+      setLogs(data.logs);
+
+      if (data.logs.some((log) => log.includes("complete"))) {
+        clearInterval(interval);
+        setRetraining(false);
+        setDataMessage("✅ Retrained successfully!");
+        setTimeout(() => setDataMessage(""), 3000);
+      }
+    }, 1000);
+
+    setLogInterval(interval);
   };
 
   const addSentence = async () => {
@@ -102,7 +116,11 @@ function App() {
       {/* Content */}
       <div
         className="relative z-10 flex gap-4"
-        style={{ width: "1100px", height: "85vh" }}
+        style={{
+          width: logs.length > 0 ? "1400px" : "1100px",
+          height: "85vh",
+          transition: "width 0.3s ease",
+        }}
       >
         {/* Chat Panel */}
         <div
@@ -292,6 +310,71 @@ function App() {
             </button>
           </div>
         </div>
+
+        {/* Training Logs Panel */}
+        {logs.length > 0 && (
+          <div
+            className="flex flex-col rounded-2xl overflow-hidden"
+            style={{ width: "280px", ...glassStyle }}
+          >
+            {/* Header */}
+            <div
+              className="p-5 flex items-center gap-2"
+              style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}
+            >
+              <RefreshCw
+                size={18}
+                color="#a78bfa"
+                className={retraining ? "animate-spin" : ""}
+              />
+              <div>
+                <h2 className="text-slate-100 m-0 text-base font-bold">
+                  Training Logs
+                </h2>
+                <p className="text-slate-500 text-xs mt-1">
+                  {retraining ? "Training in progress..." : "Complete!"}
+                </p>
+              </div>
+            </div>
+
+            {/* Logs */}
+            <div className="flex-1 overflow-y-auto p-3">
+              {logs.map((log, i) => (
+                <p
+                  key={i}
+                  className={`text-xs m-0 mb-1 font-mono break-all ${
+                    log.includes("complete")
+                      ? "text-green-400"
+                      : log.includes("Loss")
+                        ? "text-blue-400"
+                        : log.includes("Vocab")
+                          ? "text-yellow-400"
+                          : "text-slate-400"
+                  }`}
+                >
+                  {log}
+                </p>
+              ))}
+            </div>
+
+            {/* Status */}
+            <div
+              className="p-3 flex items-center justify-center"
+              style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}
+            >
+              {retraining ? (
+                <span className="text-purple-400 text-xs flex items-center gap-2">
+                  <RefreshCw size={12} className="animate-spin" />
+                  Training...
+                </span>
+              ) : (
+                <span className="text-green-400 text-xs">
+                  ✅ Training complete!
+                </span>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
