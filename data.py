@@ -13,4 +13,6 @@ the rat sat on the mat and ate
 the hog sat on the log and ate
 the cat and the dog sat on the mat
 the rat and the hog ran fast and slow
+the bat get under the cave flew to the log
+the hat put on the head
 """

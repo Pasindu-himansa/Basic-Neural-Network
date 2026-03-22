@@ -85,6 +85,78 @@ def chat(req: ChatRequest):
     return {"reply": " ".join(result), "error": False}
 
 # Vocabulary endpoint
-@app.get("/vocabulary")
-def vocabulary():
-    return {"words": list(word_to_idx.keys())}
+# Get all sentences
+@app.get("/data")
+def get_data():
+    with open('data.py', 'r') as f:
+        content = f.read()
+    # Extract sentences from training_text
+    start = content.find('"""') + 3
+    end = content.rfind('"""')
+    text = content[start:end].strip()
+    sentences = [s.strip() for s in text.split('\n') if s.strip()]
+    return {"sentences": sentences}
+
+# Add a sentence
+class SentenceRequest(BaseModel):
+    sentence: str
+
+@app.post("/data/add")
+def add_sentence(req: SentenceRequest):
+    with open('data.py', 'r') as f:
+        content = f.read()
+    # Find the closing triple quote and add before it
+    idx = content.rfind('"""')
+    new_content = content[:idx] + req.sentence.strip() + '\n' + content[idx:]
+    with open('data.py', 'w') as f:
+        f.write(new_content)
+    return {"success": True, "message": "Sentence added!"}
+
+# Remove a sentence
+# Get all sentences
+@app.get("/data")
+def get_data():
+    with open('data.py', 'r') as f:
+        content = f.read()
+    # Extract sentences from training_text
+    start = content.find('"""') + 3
+    end = content.rfind('"""')
+    text = content[start:end].strip()
+    sentences = [s.strip() for s in text.split('\n') if s.strip()]
+    return {"sentences": sentences}
+
+# Add a sentence
+class SentenceRequest(BaseModel):
+    sentence: str
+
+@app.post("/data/add")
+def add_sentence(req: SentenceRequest):
+    with open('data.py', 'r') as f:
+        content = f.read()
+    # Find the closing triple quote and add before it
+    idx = content.rfind('"""')
+    new_content = content[:idx] + req.sentence.strip() + '\n' + content[idx:]
+    with open('data.py', 'w') as f:
+        f.write(new_content)
+    return {"success": True, "message": "Sentence added!"}
+
+# Remove a sentence
+@app.post("/data/remove")
+def remove_sentence(req: SentenceRequest):
+    with open('data.py', 'r') as f:
+        content = f.read()
+    # Remove the sentence
+    new_content = content.replace(req.sentence.strip() + '\n', '')
+    with open('data.py', 'w') as f:
+        f.write(new_content)
+    return {"success": True, "message": "Sentence removed!"}
+
+# Retrain the model
+@app.post("/retrain")
+def retrain():
+    import subprocess
+    subprocess.Popen(
+        ["python", "train.py"],
+        creationflags=subprocess.CREATE_NEW_CONSOLE
+    )
+    return {"success": True, "message": "Retraining started!"}
